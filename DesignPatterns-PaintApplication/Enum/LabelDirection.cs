@@ -5,7 +5,7 @@ namespace DesignPatterns_PaintApplication.Enum;
 public enum LabelDirection
 {
     [Display(Name = "Links")]
-    Left, 
+    Left,
     [Display(Name = "Rechts")]
     Right,
     [Display(Name = "Boven")]

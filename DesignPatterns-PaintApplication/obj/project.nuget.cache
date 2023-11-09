@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "FDNPaX7h5nwFVDjTdsY/quBkO8zvyqv9FHlm+B39XYPUJAp5NLelWEmch6kV2V1tkVs2QB1NSZJ60uZ+qPskcg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Robin\\OneDrive\\School\\NHL\\Jaar 2\\DesignPatterns-PaintApplication\\DesignPatterns-PaintApplication\\DesignPatterns-PaintApplication.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Robin\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

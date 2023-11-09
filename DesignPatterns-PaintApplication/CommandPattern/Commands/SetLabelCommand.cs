@@ -19,7 +19,7 @@ internal class SetLabelCommand : ICommand
         _text = text;
         _direction = direction;
         if (originalComponent is LabeledComponent labeledComponent &&
-            labeledComponent.TryGetLabel(_direction, out var originalLabel))
+            labeledComponent.TryGetLabel(_direction, out LabeledComponent? originalLabel))
         {
             _hasExistingLabelInDirection = true;
             _originalText = originalLabel.Text;
@@ -51,13 +51,15 @@ internal class SetLabelCommand : ICommand
             newLabel.Text = _text;
 
             if (_parent.Children.Remove(_originalComponent))
-                _parent.Children.Add((IComponent)newLabel);
+            {
+                _parent.Children.Add(newLabel);
+            }
         }
     }
 
     public void Undo()
     {
-        var fromParent = _parent.Children.First(c => c.Id == _originalComponent.Id);
+        IComponent fromParent = _parent.Children.First(c => c.Id == _originalComponent.Id);
 
         if (_hasExistingLabelInDirection)
         {
@@ -66,7 +68,9 @@ internal class SetLabelCommand : ICommand
         else
         {
             if (_parent.Children.Remove(fromParent))
+            {
                 _parent.Children.Add(_originalComponent);
+            }
         }
     }
 }

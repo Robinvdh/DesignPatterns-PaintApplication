@@ -10,7 +10,6 @@ internal class RemoveComponentCommand : ICommand
     private IComponent _component;
     private readonly Group _parent;
 
-    // constructor
     public RemoveComponentCommand(Controller controller, int id)
     {
         _controller = controller;
@@ -27,11 +26,17 @@ internal class RemoveComponentCommand : ICommand
     public void Undo()
     {
         if (_component is Figure figure)
+        {
             _controller.CreateFigure(figure.Placement, figure.ObjectType, _parent?.Id);
+        }
         else
             if (_parent is not null)
+        {
             _parent.Children.Add(_component);
+        }
         else
+        {
             _controller.AddGroup(_component.InnerComponent() as Group);
+        }
     }
 }

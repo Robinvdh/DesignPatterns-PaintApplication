@@ -19,24 +19,24 @@ internal class ResizeVisitor : IVisitor
 
     public void VisitGroup(Group group)
     {
-        var figures = group.AllFiguresFlattened().ToArray();
+        IComponent[] figures = group.AllFiguresFlattened().ToArray();
 
-        var newGroupWidth = _newPosition.X - group.Placement.X;
-        var ratio = (float)newGroupWidth / group.Placement.Width;
+        int newGroupWidth = _newPosition.X - group.Placement.X;
+        float ratio = (float)newGroupWidth / group.Placement.Width;
 
-        foreach (var figure in figures)
+        foreach (IComponent? figure in figures)
         {
-            var originalRelativeX = figure.Placement.X - group.Placement.X;
-            var originalRelativeY = figure.Placement.Y - group.Placement.Y;
+            int originalRelativeX = figure.Placement.X - group.Placement.X;
+            int originalRelativeY = figure.Placement.Y - group.Placement.Y;
 
-            var newRelativeX = (int)Math.Floor(originalRelativeX * ratio);
-            var newRelativeY = (int)Math.Floor(originalRelativeY * ratio);
+            int newRelativeX = (int)Math.Floor(originalRelativeX * ratio);
+            int newRelativeY = (int)Math.Floor(originalRelativeY * ratio);
 
-            var newX = group.Placement.X + newRelativeX;
-            var newY = group.Placement.Y + newRelativeY;
+            int newX = group.Placement.X + newRelativeX;
+            int newY = group.Placement.Y + newRelativeY;
 
-            var newWidth = (int)Math.Floor(figure.Placement.Width * ratio);
-            var newHeight = (int)Math.Floor(figure.Placement.Height * ratio);
+            int newWidth = (int)Math.Floor(figure.Placement.Width * ratio);
+            int newHeight = (int)Math.Floor(figure.Placement.Height * ratio);
 
             figure.Placement = new Rectangle(newX, newY, newWidth, newHeight);
         }

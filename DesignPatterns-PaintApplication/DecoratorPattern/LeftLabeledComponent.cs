@@ -15,7 +15,7 @@ public class LeftLabeledComponent : LabeledComponent
     {
         base.Draw(e, rectangle);
 
-        var labelPoint = new PointF(Placement.X - 9 * Text.Length, Placement.Y + Placement.Height / 2);
+        PointF labelPoint = new(Placement.X - 9 * Text.Length, Placement.Y + Placement.Height / 2);
         e.Graphics.DrawString(Text, DrawFont, SolidBrush, labelPoint);
     }
 

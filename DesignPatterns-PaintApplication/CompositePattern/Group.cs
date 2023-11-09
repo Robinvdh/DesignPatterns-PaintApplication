@@ -22,15 +22,17 @@ public class Group : IComponent
 
     private Rectangle GetRectangle()
     {
-        var figures = AllFiguresFlattened().ToArray();
+        IComponent[] figures = AllFiguresFlattened().ToArray();
 
         if (!figures.Any())
+        {
             return Rectangle.Empty;
+        }
 
-        var X = figures.Min(f => f.Placement.X);
-        var Y = figures.Min(f => f.Placement.Y);
-        var Width = figures.Max(f => f.Placement.X + f.Placement.Width) - X;
-        var Heigth = figures.Max(f => f.Placement.Y + f.Placement.Height) - Y;
+        int X = figures.Min(f => f.Placement.X);
+        int Y = figures.Min(f => f.Placement.Y);
+        int Width = figures.Max(f => f.Placement.X + f.Placement.Width) - X;
+        int Heigth = figures.Max(f => f.Placement.Y + f.Placement.Height) - Y;
 
         return new Rectangle(X, Y, Width, Heigth);
     }
@@ -46,11 +48,11 @@ public class Group : IComponent
 
     public void Draw(PaintEventArgs paintEventArgs, Rectangle? rectangle = null)
     {
-        var pen = new Pen(Color.Green);
+        Pen pen = new(Color.Green);
         pen.DashStyle = DashStyle.Dot;
         paintEventArgs.Graphics.DrawRectangle(pen, rectangle ?? Placement);
 
-        foreach (var component in Children)
+        foreach (IComponent component in Children)
         {
             component.Draw(paintEventArgs, rectangle);
         }

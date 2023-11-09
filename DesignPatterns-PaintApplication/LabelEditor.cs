@@ -43,8 +43,8 @@ internal class LabelEditor : Form
 
     private void SubmitLabelButtonClick(object? sender, EventArgs e)
     {
-        var dir = (LabelDirection)DirectionSelector.SelectedIndex;
-        var cmd = new SetLabelCommand(TextBox.Text, dir, _originalComponent, _parent);
+        LabelDirection dir = (LabelDirection)DirectionSelector.SelectedIndex;
+        SetLabelCommand cmd = new(TextBox.Text, dir, _originalComponent, _parent);
         _invoker.SetCommand(cmd);
         _invoker.Execute();
 

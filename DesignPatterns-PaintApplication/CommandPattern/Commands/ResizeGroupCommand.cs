@@ -15,7 +15,7 @@ internal class ResizeGroupCommand : ICommand
 
     public ResizeGroupCommand(int groupId, Controller controller, Point newPosition)
     {
-        var group = controller.GetGroup(groupId);
+        Group group = controller.GetGroup(groupId);
         _original = JsonConvert.SerializeObject(group, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
         _parentGroupId = controller.FindParentGroup(groupId)?.Id;
         _groupId = groupId;
@@ -25,18 +25,18 @@ internal class ResizeGroupCommand : ICommand
 
     public void Execute()
     {
-        var visitor = new ResizeVisitor(_newPosition);
-        var group = _controller.GetGroup(_groupId);
+        ResizeVisitor visitor = new(_newPosition);
+        Group group = _controller.GetGroup(_groupId);
         group.Accept(visitor);
     }
 
     public void Undo()
     {
-        var group = JsonConvert.DeserializeObject<Group>(_original, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+        Group? group = JsonConvert.DeserializeObject<Group>(_original, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
 
         if (_parentGroupId.HasValue)
         {
-            var parent = _controller.GetGroup(_parentGroupId.Value);
+            Group parent = _controller.GetGroup(_parentGroupId.Value);
             parent.Children.Remove(parent.Groups.First(g => g.Id == _groupId));
             parent.Children.Add(group);
         }

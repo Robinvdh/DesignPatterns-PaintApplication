@@ -13,7 +13,7 @@ public class RectangleStrategy : IFigureStrategy
 
     private Pen GeneratePen(bool selection)
     {
-        Pen pen = new Pen(Color.Black, 2);
+        Pen pen = new(Color.Black, 2);
 
         if (selection)
         {

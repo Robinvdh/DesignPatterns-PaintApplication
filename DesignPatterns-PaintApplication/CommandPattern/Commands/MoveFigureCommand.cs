@@ -10,7 +10,6 @@ internal class MoveFigureCommand : ICommand
     private readonly int _moveY;
     private readonly Figure _figure;
 
-    // constructor
     public MoveFigureCommand(Controller controller, int moveX, int moveY, int id)
     {
         _moveX = moveX;
@@ -20,13 +19,13 @@ internal class MoveFigureCommand : ICommand
 
     public void Execute()
     {
-        var visitor = new MoveVisitor(_moveX, _moveY);
+        MoveVisitor visitor = new(_moveX, _moveY);
         _figure.Accept(visitor);
     }
 
     public void Undo()
     {
-        var visitor = new MoveVisitor(-_moveX, -_moveY);
+        MoveVisitor visitor = new(-_moveX, -_moveY);
         _figure.Accept(visitor);
     }
 }

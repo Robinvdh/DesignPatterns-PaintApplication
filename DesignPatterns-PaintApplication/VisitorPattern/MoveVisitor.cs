@@ -16,8 +16,8 @@ public class MoveVisitor : IVisitor
 
     public void VisitFigure(Figure figure)
     {
-        var newX = figure.Placement.X + _moveX;
-        var newY = figure.Placement.Y + _moveY;
+        int newX = figure.Placement.X + _moveX;
+        int newY = figure.Placement.Y + _moveY;
         figure.Placement = new(newX, newY, figure.Placement.Width, figure.Placement.Height);
     }
 
@@ -28,7 +28,7 @@ public class MoveVisitor : IVisitor
 
     private void MoveAllFiguresInGroupRecursive(Group group)
     {
-        foreach (var figure in group.Figures)
+        foreach (IComponent figure in group.Figures)
         {
             figure.Placement = new Rectangle
             {
@@ -39,10 +39,12 @@ public class MoveVisitor : IVisitor
             };
         }
 
-        foreach (var subGroup in group.Groups.Select(c => c.InnerComponent() as Group))
+        foreach (Group? subGroup in group.Groups.Select(c => c.InnerComponent() as Group))
         {
             if (subGroup == null)
+            {
                 break;
+            }
 
             MoveAllFiguresInGroupRecursive(subGroup);
         }

@@ -33,14 +33,16 @@ public partial class Entity : Form
     {
         InitializeComponent();
     }
-        
+
     #region PaintPanel
     private void panel_Paint(object sender, PaintEventArgs e)
     {
-        foreach (var component in _controller.GetComponents())
+        foreach (IComponent? component in _controller.GetComponents())
         {
             if (component is not null)
+            {
                 component.Draw(e);
+            }
         }
 
         FillTreeview();
@@ -54,15 +56,15 @@ public partial class Entity : Form
 
         if (_isMoving)
         {
-            var figure = _controller.GetFigure(_modifyingFigureId);
-            var preview = MoveRectangle(figure.Placement);
+            Figure figure = _controller.GetFigure(_modifyingFigureId);
+            Rectangle preview = MoveRectangle(figure.Placement);
             figure.Draw(e, preview);
         }
 
         if (_isResizing)
         {
-            var figure = _controller.GetFigure(_modifyingFigureId);
-            var preview = ResizeRectangle(figure.Placement);
+            Figure figure = _controller.GetFigure(_modifyingFigureId);
+            Rectangle preview = ResizeRectangle(figure.Placement);
             figure.Draw(e, preview);
         }
     }
@@ -74,15 +76,17 @@ public partial class Entity : Form
 
         _mouseDragStartPosition = e.Location;
 
-        var figures = _controller.GetAllFiguresFlattened();
-        var huidigFiguur = figures.LastOrDefault(f => f.Placement.Contains(e.Location));
+        IEnumerable<IComponent> figures = _controller.GetAllFiguresFlattened();
+        IComponent? huidigFiguur = figures.LastOrDefault(f => f.Placement.Contains(e.Location));
         if (huidigFiguur is not null)
+        {
             _modifyingFigureId = huidigFiguur.Id;
+        }
 
         switch (_currentMode)
         {
             case DrawingMode.Select:
-                foreach (var figuur in _controller.GetAllFiguresFlattened())
+                foreach (IComponent figuur in _controller.GetAllFiguresFlattened())
                 {
                     if (figuur.Placement.Contains(_mouseDragStartPosition))
                     {
@@ -91,7 +95,7 @@ public partial class Entity : Form
                 }
                 break;
             case DrawingMode.Resize:
-                foreach (var figuur in _controller.GetAllFiguresFlattened())
+                foreach (IComponent figuur in _controller.GetAllFiguresFlattened())
                 {
                     if (figuur.Placement.Contains(_mouseDragStartPosition))
                     {
@@ -125,7 +129,7 @@ public partial class Entity : Form
         _isResizing = false;
         _isDrawing = false;
 
-        var selectedGroupId = _controller.SelectedGroupId();
+        int? selectedGroupId = _controller.SelectedGroupId();
 
         switch (_currentMode)
         {
@@ -133,19 +137,21 @@ public partial class Entity : Form
                 if (_modifyingFigureId >= 0)
                 {
                     if (_mouseDragEndPosition == _mouseDragStartPosition)
+                    {
                         _controller.SelectFigure(_modifyingFigureId);
+                    }
                     else
                     {
                         if (selectedGroupId.HasValue)
                         {
-                            var moveX = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
-                            var moveY = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
+                            int moveX = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
+                            int moveY = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
                             _invoker.SetCommand(new MoveGroupCommand(_controller, selectedGroupId.Value, moveX, moveY));
                         }
                         else
                         {
-                            var moveRight = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
-                            var moveDown = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
+                            int moveRight = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
+                            int moveDown = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
                             _invoker.SetCommand(new MoveFigureCommand(_controller, moveRight, moveDown, _modifyingFigureId));
                         }
 
@@ -162,7 +168,7 @@ public partial class Entity : Form
                     }
                     else if (_modifyingFigureId >= 0)
                     {
-                        var figure = _controller.GetFigure(_modifyingFigureId);
+                        Figure figure = _controller.GetFigure(_modifyingFigureId);
                         _invoker.SetCommand(new ResizeFigureCommand(figure, _mouseDragEndPosition));
                     }
                 }
@@ -178,14 +184,19 @@ public partial class Entity : Form
                 break;
             case DrawingMode.Delete:
                 if (_modifyingFigureId >= 0 && _mouseDragEndPosition == _mouseDragStartPosition)
+                {
                     _invoker.SetCommand(new RemoveComponentCommand(_controller, _modifyingFigureId));
+                }
+
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
         if (_invoker.HasCommand)
+        {
             _invoker.Execute();
+        }
 
         _modifyingFigureId = -1;
 
@@ -206,13 +217,13 @@ public partial class Entity : Form
     {
         CheckForUnsavedChanges();
 
-        OpenFileDialog dialog = new OpenFileDialog();
+        OpenFileDialog dialog = new();
         dialog.Filter = "JSON files (*.json)|*.json";
 
         if (dialog.ShowDialog() == DialogResult.OK)
         {
-            var json = File.ReadAllText(dialog.FileName);
-            var Group = JsonConvert.DeserializeObject<Group>(json, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+            string json = File.ReadAllText(dialog.FileName);
+            Group? Group = JsonConvert.DeserializeObject<Group>(json, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
             _controller.ParentGroup = Group;
         }
 
@@ -227,9 +238,11 @@ public partial class Entity : Form
         };
 
         if (saveFileDialog.ShowDialog() != DialogResult.OK)
+        {
             return;
+        }
 
-        var visitor = new SaveVisitor(saveFileDialog.FileName);
+        SaveVisitor visitor = new(saveFileDialog.FileName);
         _controller.ParentGroup.Accept(visitor);
     }
     #endregion
@@ -295,7 +308,9 @@ public partial class Entity : Form
     {
         int? selectedGroupId = null;
         if (treeView.SelectedNode?.Tag is Group)
+        {
             selectedGroupId = ((IComponent)treeView.SelectedNode.Tag).Id;
+        }
 
         _invoker.SetCommand(new NewGroupCommand(_controller, selectedGroupId));
         _invoker.Execute();
@@ -331,14 +346,14 @@ public partial class Entity : Form
     private void treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
     {
         _currentComponent = e.Node.Tag as IComponent;
-        var treeView = sender as TreeView;
+        TreeView? treeView = sender as TreeView;
         treeView.SelectedNode = e.Node;
 
         switch (e.Button)
         {
             case MouseButtons.Right:
                 {
-                    var menu = new ContextMenuStrip();
+                    ContextMenuStrip menu = new();
                     menu.Items.Add("Verwijderen", null, DeleteContextMenuItemClick);
 
                     if (e.Node.Tag is Group)
@@ -355,7 +370,10 @@ public partial class Entity : Form
                 _controller.ClearSelection();
                 _currentComponent.Selected = true;
                 if (_currentComponent is Group Group)
+                {
                     _controller.SelectGroupRecursive(Group);
+                }
+
                 Refresh();
                 FillTreeview();
                 break;
@@ -368,7 +386,7 @@ public partial class Entity : Form
     #region Private Functions
     private Rectangle GetRectangle()
     {
-        var rectangle = new Rectangle();
+        Rectangle rectangle = new();
         rectangle.X = Math.Min(_mouseDragStartPosition.X, _mouseDragEndPosition.X);
         rectangle.Y = Math.Min(_mouseDragStartPosition.Y, _mouseDragEndPosition.Y);
         rectangle.Width = Math.Abs(_mouseDragStartPosition.X - _mouseDragEndPosition.X);
@@ -378,39 +396,25 @@ public partial class Entity : Form
 
     private Rectangle MoveRectangle(Rectangle rectangle)
     {
-        var moveRight = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
+        int moveRight = _mouseDragEndPosition.X - _mouseDragStartPosition.X;
         rectangle.X += moveRight;
-        var moveDown = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
+        int moveDown = _mouseDragEndPosition.Y - _mouseDragStartPosition.Y;
         rectangle.Y += moveDown;
         return rectangle;
     }
 
-    private Rectangle ResizeRectangle(Rectangle currRectangle)
+    private Rectangle ResizeRectangle(Rectangle currentRectangle)
     {
-        var rectangle = new Rectangle();
+        Rectangle rectangle = new();
 
-        if (_mouseDragEndPosition.X < currRectangle.X)
-        {
-            rectangle.X = _mouseDragEndPosition.X;
-        }
-        else
-        {
-            rectangle.X = currRectangle.X;
-        }
+        rectangle.X = _mouseDragEndPosition.X < currentRectangle.X ? _mouseDragEndPosition.X : currentRectangle.X;
+        rectangle.Y = _mouseDragEndPosition.Y < currentRectangle.Y ? _mouseDragEndPosition.Y : currentRectangle.Y;
 
-        if (_mouseDragEndPosition.Y < currRectangle.Y)
-        {
-            rectangle.Y = _mouseDragEndPosition.Y;
-        }
-        else
-        {
-            rectangle.Y = currRectangle.Y;
-        }
-
-        rectangle.Width = Math.Abs(_mouseDragEndPosition.X - currRectangle.X);
-        rectangle.Height = Math.Abs(_mouseDragEndPosition.Y - currRectangle.Y);
+        rectangle.Width = Math.Abs(_mouseDragEndPosition.X - currentRectangle.X);
+        rectangle.Height = Math.Abs(_mouseDragEndPosition.Y - currentRectangle.Y);
         return rectangle;
     }
+
 
     private static ObjectType ToFigureType(DrawingMode modus)
     {
@@ -426,7 +430,7 @@ public partial class Entity : Form
     {
         if (Componenten().Count() != 0)
         {
-            var saveDialogResult = MessageBox.Show("Wil je de huidige tekening opslaan?", "Opslaan", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            DialogResult saveDialogResult = MessageBox.Show("Wil je de huidige tekening opslaan?", "Opslaan", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
             if (saveDialogResult == DialogResult.Yes)
             {
@@ -454,16 +458,20 @@ public partial class Entity : Form
         treeView.BeginUpdate();
         treeView.Nodes.Clear();
 
-        foreach (var component in _controller.GetComponents())
+        foreach (IComponent component in _controller.GetComponents())
         {
-            var newNode = new TreeNode { Text = component.Name, Tag = component };
+            TreeNode newNode = new() { Text = component.Name, Tag = component };
 
             if (component is Group Group)
+            {
                 AddChildNodesRecursive(newNode, Group, treeView);
+            }
 
             treeView.Nodes.Add(newNode);
             if (component.Selected)
+            {
                 treeView.SelectedNode = newNode;
+            }
         }
 
         treeView.EndUpdate();
@@ -473,22 +481,26 @@ public partial class Entity : Form
 
     private static void AddChildNodesRecursive(TreeNode node, Group Group, TreeView treeView)
     {
-        foreach (var component in Group.Children)
+        foreach (IComponent component in Group.Children)
         {
-            var subNode = new TreeNode { Text = component.Name, Tag = component };
+            TreeNode subNode = new() { Text = component.Name, Tag = component };
 
             if (component is Group subGroup)
+            {
                 AddChildNodesRecursive(subNode, subGroup, treeView);
+            }
 
             node.Nodes.Add(subNode);
             if (!Group.Selected && component.Selected)
+            {
                 treeView.SelectedNode = subNode;
+            }
         }
     }
 
     private void AddChildGroupMenuItemClick(object? sender, EventArgs e)
     {
-        var command = new NewGroupCommand(_controller, _currentComponent.Id);
+        NewGroupCommand command = new(_controller, _currentComponent.Id);
         _invoker.SetCommand(command);
         _invoker.Execute();
         FillTreeview();
@@ -496,8 +508,8 @@ public partial class Entity : Form
 
     private void LabelsMenuItemClick(object? sender, EventArgs e)
     {
-        var parent = _controller.FindParentGroup(_currentComponent.Id);
-        var form = new LabelEditor(_currentComponent, parent, _invoker);
+        Group parent = _controller.FindParentGroup(_currentComponent.Id);
+        LabelEditor form = new(_currentComponent, parent, _invoker);
         form.Closed += (_, _) => Refresh();
         form.ShowDialog();
     }

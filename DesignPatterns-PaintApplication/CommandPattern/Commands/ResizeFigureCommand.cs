@@ -19,7 +19,7 @@ internal class ResizeFigureCommand : ICommand
 
     public void Execute()
     {
-        var visitor = new ResizeVisitor(_newPosition);
+        ResizeVisitor visitor = new(_newPosition);
         _figure.Accept(visitor);
     }
 

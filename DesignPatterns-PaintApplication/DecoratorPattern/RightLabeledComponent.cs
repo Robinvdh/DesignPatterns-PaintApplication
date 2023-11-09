@@ -15,7 +15,7 @@ internal class RightLabeledComponent : LabeledComponent
     {
         base.Draw(e, rectangle);
 
-        var labelPoint = new PointF(Placement.X + Placement.Width + 5, Placement.Y + Placement.Height / 2);
+        PointF labelPoint = new(Placement.X + Placement.Width + 5, Placement.Y + Placement.Height / 2);
         e.Graphics.DrawString(Text, DrawFont, SolidBrush, labelPoint);
     }
 

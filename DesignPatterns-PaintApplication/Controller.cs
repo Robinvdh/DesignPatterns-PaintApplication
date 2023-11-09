@@ -14,15 +14,15 @@ public class Controller
 
     public IComponent GetComponent(int id)
     {
-        var component = _parentGroup.Children.FirstOrDefault(f => f.Id == id);
+        IComponent? component = _parentGroup.Children.FirstOrDefault(f => f.Id == id);
         if (component is not null)
         {
             return component;
         }
 
-        var groups = Groups();
+        IEnumerable<IComponent> groups = Groups();
 
-        foreach (var group in groups)
+        foreach (IComponent group in groups)
         {
             component = GetComponent(id, group.InnerComponent() as Group);
             if (component is not null)
@@ -36,15 +36,15 @@ public class Controller
 
     public IComponent GetComponent(int id, Group group)
     {
-        var component = group.Children.FirstOrDefault(f => f.Id == id);
+        IComponent? component = group.Children.FirstOrDefault(f => f.Id == id);
         if (component is not null)
         {
             return component;
         }
         else
         {
-            var groups = group.Children.Where(g => g.ComponentType == ComponentType.Group);
-            foreach (var subgroup in groups)
+            IEnumerable<IComponent> groups = group.Children.Where(g => g.ComponentType == ComponentType.Group);
+            foreach (IComponent? subgroup in groups)
             {
                 component = GetComponent(id, subgroup.InnerComponent() as Group);
                 if (component is not null)
@@ -84,9 +84,9 @@ public class Controller
         }
 
 
-        foreach (var subgroup in groups)
+        foreach (Group subgroup in groups)
         {
-            var parent = FindParentGroup(childId, subgroup);
+            Group? parent = FindParentGroup(childId, subgroup);
             if (parent is not null)
             {
                 return parent;
@@ -100,9 +100,9 @@ public class Controller
 
     public int? SelectedGroupId()
     {
-        var groups = Groups().Select(g => g.InnerComponent() as Group);
+        IEnumerable<Group?> groups = Groups().Select(g => g.InnerComponent() as Group);
 
-        foreach (var group in groups)
+        foreach (Group? group in groups)
         {
             if (group.Selected)
             {
@@ -112,7 +112,7 @@ public class Controller
 
         int? id = null;
 
-        foreach (var group in groups)
+        foreach (Group? group in groups)
         {
             id = SelectedSubgroupIdRecursive(group);
         }
@@ -122,7 +122,7 @@ public class Controller
 
     private int? SelectedSubgroupIdRecursive(Group group)
     {
-        foreach (var subGroup in group.Groups)
+        foreach (IComponent subGroup in group.Groups)
         {
             if (subGroup.Selected)
             {
@@ -132,7 +132,7 @@ public class Controller
 
         int? id = null;
 
-        foreach (var subGroup in group.Groups)
+        foreach (IComponent subGroup in group.Groups)
         {
             id = SelectedSubgroupIdRecursive(subGroup.InnerComponent() as Group);
         }
@@ -142,9 +142,9 @@ public class Controller
 
     public int CreateFigure(Rectangle rectangle, ObjectType objectType, int? parentGroupId)
     {
-        var newId = GetNewId();
+        int newId = GetNewId();
 
-        var figure = new Figure()
+        Figure figure = new()
         {
             Id = newId,
             Name = "figure " + newId,
@@ -155,12 +155,12 @@ public class Controller
 
         if (parentGroupId is null)
         {
-            _parentGroup.Children.Add((IComponent)figure);
+            _parentGroup.Children.Add(figure);
         }
         else
         {
-            var parent = GetGroup(parentGroupId.Value);
-            parent.Children.Add((IComponent)figure);
+            Group parent = GetGroup(parentGroupId.Value);
+            parent.Children.Add(figure);
         }
 
         return newId;
@@ -168,7 +168,7 @@ public class Controller
 
     public Group GetGroup(int groupId)
     {
-        var component = GetComponent(groupId);
+        IComponent component = GetComponent(groupId);
         return component.InnerComponent() as Group;
     }
 
@@ -179,8 +179,8 @@ public class Controller
             return 1;
         }
 
-        var ids = new List<int>();
-        foreach (var component in _parentGroup.Children)
+        List<int> ids = new();
+        foreach (IComponent component in _parentGroup.Children)
         {
             AddIdsFromChildren(ids, component);
         }
@@ -199,9 +199,9 @@ public class Controller
 
     private IEnumerable<int> GetIdsFromGroupRecursive(Group group)
     {
-        var ids = new List<int>();
+        List<int> ids = new();
 
-        foreach (var child in group.Children)
+        foreach (IComponent child in group.Children)
         {
             AddIdsFromChildren(ids, child);
         }
@@ -211,14 +211,14 @@ public class Controller
 
     public void RemoveComponent(int id)
     {
-        var component = _parentGroup.Children.FirstOrDefault(f => f.Id == id);
+        IComponent? component = _parentGroup.Children.FirstOrDefault(f => f.Id == id);
         if (component is not null)
         {
             _parentGroup.Children.Remove(component);
         }
         else
         {
-            foreach (var group in Groups().Select(g => g.InnerComponent() as Group))
+            foreach (Group? group in Groups().Select(g => g.InnerComponent() as Group))
             {
                 if (RemoveComponentFromGroupRecursive(group, id))
                 {
@@ -230,7 +230,7 @@ public class Controller
 
     private static bool RemoveComponentFromGroupRecursive(Group group, int id)
     {
-        var component = group.Children.FirstOrDefault(c => c.Id == id);
+        IComponent? component = group.Children.FirstOrDefault(c => c.Id == id);
         if (component is not null)
         {
             group.Children.Remove(component);
@@ -251,7 +251,7 @@ public class Controller
 
     public Figure GetFigure(int id)
     {
-        var component = GetComponent(id);
+        IComponent component = GetComponent(id);
         return (Figure)component.InnerComponent();
     }
 
@@ -262,8 +262,8 @@ public class Controller
 
     public int CreateGroup(int? parentGroupId = null)
     {
-        var newId = GetNewId();
-        var group = new Group { Name = "group " + newId, Id = newId };
+        int newId = GetNewId();
+        Group group = new() { Name = "group " + newId, Id = newId };
         group.Children = new List<IComponent>();
 
         if (parentGroupId is null)
@@ -272,7 +272,7 @@ public class Controller
         }
         else
         {
-            var parent = GetGroup(parentGroupId.Value);
+            Group parent = GetGroup(parentGroupId.Value);
             parent.Children.Add(group);
         }
 
@@ -291,7 +291,7 @@ public class Controller
 
     public void ClearSelection()
     {
-        foreach (var component in _parentGroup.Children)
+        foreach (IComponent component in _parentGroup.Children)
         {
             component.Selected = false;
             if (component is Group group)
@@ -303,7 +303,7 @@ public class Controller
 
     private void ClearSelectionInGroup(Group group)
     {
-        foreach (var component in group.Children)
+        foreach (IComponent component in group.Children)
         {
             component.Selected = false;
             if (component is Group subGroup)
@@ -315,7 +315,7 @@ public class Controller
 
     public void SelectGroupRecursive(Group group)
     {
-        foreach (var component in group.Children)
+        foreach (IComponent component in group.Children)
         {
             component.Selected = true;
             if (component is Group subGroup)

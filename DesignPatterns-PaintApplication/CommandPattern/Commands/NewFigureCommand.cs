@@ -11,7 +11,6 @@ class NewFigureCommand : ICommand
     private readonly int? _parentGroupId;
     private int _id;
 
-    // constructor
     public NewFigureCommand(Controller controller, Rectangle rectangle, ObjectType objectType,
         int? parentGroupId)
     {

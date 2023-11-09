@@ -13,7 +13,7 @@ internal class BottomLabeledComponent : LabeledComponent
     {
         base.Draw(e, rectangle);
 
-        var labelPoint = new PointF(Placement.X, Placement.Y + Placement.Height + 10);
+        PointF labelPoint = new(Placement.X, Placement.Y + Placement.Height + 10);
         e.Graphics.DrawString(Text, DrawFont, SolidBrush, labelPoint);
     }
 

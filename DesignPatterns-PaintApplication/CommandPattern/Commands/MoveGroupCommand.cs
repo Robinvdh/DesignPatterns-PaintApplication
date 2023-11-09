@@ -19,13 +19,13 @@ internal class MoveGroupCommand : ICommand
 
     public void Execute()
     {
-        var visitor = new MoveVisitor(_moveX, _moveY);
+        MoveVisitor visitor = new(_moveX, _moveY);
         _group.Accept(visitor);
     }
 
     public void Undo()
     {
-        var visitor = new MoveVisitor(-_moveX, -_moveY);
+        MoveVisitor visitor = new(-_moveX, -_moveY);
         _group.Accept(visitor);
     }
 }

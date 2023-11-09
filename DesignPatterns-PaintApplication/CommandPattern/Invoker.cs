@@ -5,8 +5,8 @@ namespace DesignPatterns_PaintApplication.CommandPattern;
 public class Invoker
 {
     private ICommand? _command;
-    private Stack<ICommand> _Undo = new Stack<ICommand>();
-    private Stack<ICommand> _Redo = new Stack<ICommand>();
+    private Stack<ICommand> _Undo = new();
+    private Stack<ICommand> _Redo = new();
     public bool HasCommand => _command is not null;
 
     public void SetCommand(ICommand command)
@@ -18,7 +18,9 @@ public class Invoker
     public void Execute()
     {
         if (_command == null)
+        {
             return;
+        }
 
         _command.Execute();
         _Undo.Push(_command);
